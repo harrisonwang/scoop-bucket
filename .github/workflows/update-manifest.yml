@@ -1,0 +1,112 @@
+name: update-manifest
+
+on:
+  repository_dispatch:
+    types: [tool-released]
+  workflow_dispatch:
+    inputs:
+      tool:
+        required: true
+        description: "Manifest/tool name, e.g. pith"
+      tag:
+        required: true
+        description: "Release tag, e.g. v1.2.3"
+      repo:
+        required: true
+        description: "Source repository, e.g. harrisonwang/pith"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scoop-bucket-updates
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve inputs
+        id: in
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            tool="${{ github.event.client_payload.tool }}"
+            tag="${{ github.event.client_payload.tag }}"
+            repo="${{ github.event.client_payload.repo }}"
+          else
+            tool="${{ inputs.tool }}"
+            tag="${{ inputs.tag }}"
+            repo="${{ inputs.repo }}"
+          fi
+
+          if [[ ! "$tool" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+            echo "invalid tool name: $tool" >&2
+            exit 1
+          fi
+          if [[ ! "$tag" =~ ^v[0-9] ]]; then
+            echo "invalid tag: $tag" >&2
+            exit 1
+          fi
+          if [[ ! "$repo" =~ ^harrisonwang/[A-Za-z0-9._-]+$ ]]; then
+            echo "repo is not allowed: $repo" >&2
+            exit 1
+          fi
+
+          echo "tool=$tool" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout bucket
+        uses: actions/checkout@v4
+
+      - name: Checkout tool repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.in.outputs.repo }}
+          ref: ${{ steps.in.outputs.tag }}
+          path: src
+
+      - name: Download checksums
+        env:
+          TAG: ${{ steps.in.outputs.tag }}
+          REPO: ${{ steps.in.outputs.repo }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://github.com/${REPO}/releases/download/${TAG}/SHA256SUMS.txt" -o SHA256SUMS.txt
+
+      - name: Render manifest
+        env:
+          TOOL: ${{ steps.in.outputs.tool }}
+          TAG: ${{ steps.in.outputs.tag }}
+          REPO: ${{ steps.in.outputs.repo }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          template="src/.github/scoop/${TOOL}.json.tmpl"
+          test -f "$template"
+          python3 scripts/render_manifest.py \
+            --template "$template" \
+            --checksums SHA256SUMS.txt \
+            --output "bucket/${TOOL}.json"
+          python3 -m json.tool "bucket/${TOOL}.json" > /dev/null
+
+      - name: Commit and push
+        env:
+          TOOL: ${{ steps.in.outputs.tool }}
+          TAG: ${{ steps.in.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "bucket/${TOOL}.json"
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "${TOOL} ${TAG}"
+            git push
+          fi
