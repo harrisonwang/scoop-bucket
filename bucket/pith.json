@@ -1,12 +1,12 @@
 {
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Convert files and URLs to LLM-friendly markdown",
   "homepage": "https://github.com/harrisonwang/pith",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/harrisonwang/pith/releases/download/v0.5.3/pith_v0.5.3_x86_64-pc-windows-msvc.zip",
-      "hash": "a233583eb852a28fe77048d195540d706f43dac8bc4ace87b89edda77ff21f0e",
+      "url": "https://github.com/harrisonwang/pith/releases/download/v0.6.0/pith_v0.6.0_x86_64-pc-windows-msvc.zip",
+      "hash": "473e87ea435dc016debb50d1330ea0e815c08cb9e2def452488c11b16ca1cfd6",
       "extract_dir": "pith"
     }
   },
