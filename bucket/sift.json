@@ -1,16 +1,20 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Provider-driven technical news radar CLI",
   "homepage": "https://github.com/harrisonwang/sift",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/harrisonwang/sift/releases/download/v0.1.0/sift_v0.1.0_x86_64-pc-windows-msvc.zip",
-      "hash": "b90e5f437a104b574576431fd7c61b2dfbe2eb1a107a496fb84fe12900d397d1",
+      "url": "https://github.com/harrisonwang/sift/releases/download/v0.2.0/sift_v0.2.0_x86_64-pc-windows-msvc.zip",
+      "hash": "a590886d78dbe00758afcca8d56310fb0d762165226aa347d32eba1b38986993",
       "extract_dir": "sift"
     }
   },
   "bin": "sift.exe",
+  "post_install": [
+    "Write-Host '创建默认配置：sift config init'",
+    "Write-Host '然后编辑 ~/.sift/config.yaml，并运行：sift config validate'"
+  ],
   "checkver": {
     "github": "https://github.com/harrisonwang/sift"
   },
