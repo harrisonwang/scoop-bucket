@@ -1,0 +1,27 @@
+{
+  "version": "0.1.0",
+  "description": "Provider-driven technical news radar CLI",
+  "homepage": "https://github.com/harrisonwang/sift",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/harrisonwang/sift/releases/download/v0.1.0/sift_v0.1.0_x86_64-pc-windows-msvc.zip",
+      "hash": "4e6ab0cfbcfee3c82b037ff003f4aadc14c726d3913d2b324b57a2d3ef65747e",
+      "extract_dir": "sift"
+    }
+  },
+  "bin": "sift.exe",
+  "checkver": {
+    "github": "https://github.com/harrisonwang/sift"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/harrisonwang/sift/releases/download/v$version/sift_v$version_x86_64-pc-windows-msvc.zip"
+      }
+    },
+    "hash": {
+      "url": "https://github.com/harrisonwang/sift/releases/download/v$version/SHA256SUMS.txt"
+    }
+  }
+}
