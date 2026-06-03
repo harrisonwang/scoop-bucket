@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/harrisonwang/sift/releases/download/v0.1.0/sift_v0.1.0_x86_64-pc-windows-msvc.zip",
-      "hash": "4e6ab0cfbcfee3c82b037ff003f4aadc14c726d3913d2b324b57a2d3ef65747e",
+      "hash": "b90e5f437a104b574576431fd7c61b2dfbe2eb1a107a496fb84fe12900d397d1",
       "extract_dir": "sift"
     }
   },
