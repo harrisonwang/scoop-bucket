@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/harrisonwang/pith/releases/download/v0.6.2/pith_v0.6.2_x86_64-pc-windows-msvc.zip",
-      "hash": "0e10abc2d00f75efa543b32953d2fb969dc90aa9ccfbd19b64c135d7f37175ff",
+      "hash": "f6b467f26f4ffc4ad6b3b477c4599ed78adf1168bedb7fba07fc183940da444d",
       "extract_dir": "pith"
     }
   },
