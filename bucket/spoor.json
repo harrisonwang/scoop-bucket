@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/harrisonwang/spoor/releases/download/v0.8.6/spoor_v0.8.6_x86_64-pc-windows-msvc.zip",
-      "hash": "2bfe69c469e0c787a55d99996801f2ba12bd80979922fd98a4ce4e5ba36a729f",
+      "hash": "d3c9d57eb81044fcb8499ad9184a5ae4b8e4ee76dc89481c3c4438bc99303233",
       "extract_dir": "spoor"
     }
   },
