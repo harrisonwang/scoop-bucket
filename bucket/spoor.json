@@ -1,12 +1,12 @@
 {
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "Convert documents to LLM-friendly text — Markdown for prose, JSON for tables",
   "homepage": "https://github.com/harrisonwang/spoor",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/harrisonwang/spoor/releases/download/v0.8.7/spoor_v0.8.7_x86_64-pc-windows-msvc.zip",
-      "hash": "c781090770ea7d44a1f60a94724759f62b77e8b3569755605d83d68f37599d6e",
+      "url": "https://github.com/harrisonwang/spoor/releases/download/v0.8.8/spoor_v0.8.8_x86_64-pc-windows-msvc.zip",
+      "hash": "fda73ed990bc9787731c16660a01f32ea6207168c11da45ac50153ccd432d603",
       "extract_dir": "spoor"
     }
   },
