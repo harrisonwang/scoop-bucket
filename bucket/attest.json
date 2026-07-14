@@ -1,0 +1,33 @@
+{
+  "version": "0.1.0",
+  "description": "Document regression testing for repository facts",
+  "homepage": "https://github.com/harrisonwang/attest",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/harrisonwang/attest/releases/download/v0.1.0/attest-windows-x86_64.zip",
+      "hash": "a03aba00fefa4815ee1430b6418c9839a0bc0bd9fda064b578c9e85217f42cc1"
+    },
+    "arm64": {
+      "url": "https://github.com/harrisonwang/attest/releases/download/v0.1.0/attest-windows-aarch64.zip",
+      "hash": "c02cfeed8ae705eba1c69655251b824c7d845d0e8b5eaa98d0c2e4fa45524349"
+    }
+  },
+  "bin": "attest.exe",
+  "checkver": {
+    "github": "https://github.com/harrisonwang/attest"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/harrisonwang/attest/releases/download/v$version/attest-windows-x86_64.zip"
+      },
+      "arm64": {
+        "url": "https://github.com/harrisonwang/attest/releases/download/v$version/attest-windows-aarch64.zip"
+      }
+    },
+    "hash": {
+      "url": "https://github.com/harrisonwang/attest/releases/download/v$version/SHA256SUMS.txt"
+    }
+  }
+}
