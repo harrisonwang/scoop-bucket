@@ -20,7 +20,7 @@ def load_checksums(path: Path) -> dict[str, str]:
         parts = line.split()
         if len(parts) < 2:
             continue
-        sha, name = parts[0], parts[-1].lstrip("*")
+        sha, name = parts[0], Path(parts[-1].lstrip("*")).name
         checksums[name] = sha
     return checksums
 
