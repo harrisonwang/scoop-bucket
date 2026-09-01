@@ -1,12 +1,12 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Sync clipboard and files across devices on a LAN",
   "homepage": "https://github.com/harrisonwang/clipx",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/harrisonwang/clipx/releases/download/v0.2.0/clipx_v0.2.0_x86_64-pc-windows-msvc.zip",
-      "hash": "27271ffbb79f999011b07b67c1930417f46aef56f5468ddaffb227b778af78bc",
+      "url": "https://github.com/harrisonwang/clipx/releases/download/v0.3.0/clipx_v0.3.0_x86_64-pc-windows-msvc.zip",
+      "hash": "45d8326963b9d8f961de9cd4a4a8692b6292471e3303f8a4f81bfeda426c1895",
       "extract_dir": "clipx"
     }
   },
