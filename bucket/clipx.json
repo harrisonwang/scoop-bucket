@@ -1,13 +1,18 @@
 {
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Sync clipboard and files across devices on a LAN",
   "homepage": "https://github.com/harrisonwang/clipx",
   "license": "MIT",
   "architecture": {
     "64bit": {
-      "url": "https://github.com/harrisonwang/clipx/releases/download/v0.6.0/clipx_v0.6.0_x86_64-pc-windows-msvc.zip",
-      "hash": "dce651ebb19609daf6a8249da173ede8288b7f6fe7f2e967241166fb2f782475",
-      "extract_dir": "clipx"
+      "url": [
+        "https://github.com/harrisonwang/clipx/releases/download/v0.7.0/clipx_v0.7.0_x86_64-pc-windows-msvc.exe#/clipx.exe",
+        "https://github.com/harrisonwang/clipx/releases/download/v0.7.0/clipx-gui_v0.7.0_x86_64-pc-windows-msvc.exe#/clipx-gui.exe"
+      ],
+      "hash": [
+        "d9be3838597e4e85b5276f41f3d626e3ebf461fae7253f7de3f10d51fd243732",
+        "7ba9f643378f181502f4594d728c7ec0af6b35ac45b7bb1263827129d0f9a8e7"
+      ]
     }
   },
   "bin": [
@@ -26,7 +31,10 @@
   "autoupdate": {
     "architecture": {
       "64bit": {
-        "url": "https://github.com/harrisonwang/clipx/releases/download/v$version/clipx_v$version_x86_64-pc-windows-msvc.zip"
+        "url": [
+          "https://github.com/harrisonwang/clipx/releases/download/v$version/clipx_v$version_x86_64-pc-windows-msvc.exe#/clipx.exe",
+          "https://github.com/harrisonwang/clipx/releases/download/v$version/clipx-gui_v$version_x86_64-pc-windows-msvc.exe#/clipx-gui.exe"
+        ]
       }
     },
     "hash": {
