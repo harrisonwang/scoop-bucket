@@ -1,0 +1,41 @@
+{
+  "version": "{{VERSION}}",
+  "description": "Zipover Desktop: clipboard and file synchronization over LAN",
+  "homepage": "https://github.com/{{REPO}}",
+  "license": {
+    "identifier": "Proprietary",
+    "url": "https://github.com/{{REPO}}/blob/main/LICENSE"
+  },
+  "architecture": {
+    "64bit": {
+      "url": [
+        "{{BASE_URL}}/zipover-gui_{{TAG}}_x86_64-pc-windows-msvc.exe#/zipover-gui.exe",
+        "{{BASE_URL}}/LICENSE",
+        "{{BASE_URL}}/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+      ],
+      "hash": [
+        "{{SHA256:zipover-gui_{{TAG}}_x86_64-pc-windows-msvc.exe}}",
+        "{{SHA256:LICENSE}}",
+        "{{SHA256:THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt}}"
+      ]
+    }
+  },
+  "bin": "zipover-gui.exe",
+  "shortcuts": [["zipover-gui.exe", "Zipover"]],
+  "checkver": {
+    "url": "https://raw.githubusercontent.com/{{REPO}}/main/channels/v1.json",
+    "jsonpath": "$.version"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": [
+          "https://github.com/{{REPO}}/releases/download/v$version/zipover-gui_v$version_x86_64-pc-windows-msvc.exe#/zipover-gui.exe",
+          "https://github.com/{{REPO}}/releases/download/v$version/LICENSE",
+          "https://github.com/{{REPO}}/releases/download/v$version/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+        ]
+      }
+    },
+    "hash": {"url": "https://github.com/{{REPO}}/releases/download/v$version/SHA256SUMS.txt"}
+  }
+}

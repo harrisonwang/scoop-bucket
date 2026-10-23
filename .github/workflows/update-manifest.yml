@@ -7,109 +7,110 @@ on:
     inputs:
       tool:
         required: true
-        description: "Manifest/tool name, e.g. pith"
+        description: Tool name
+      component:
+        default: cli
+        type: choice
+        options: [cli, desktop]
       tag:
         required: true
-        description: "Release tag, e.g. v1.2.3"
+        description: Release tag
       repo:
         required: true
-        description: "Source repository, e.g. harrisonwang/pith"
+        description: Public release repository
+      major:
+        description: Major version (required for Zipover)
 
 permissions:
   contents: write
 
 concurrency:
-  group: scoop-bucket-updates
+  group: package-updates
   cancel-in-progress: false
 
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve inputs
-        id: in
+      - name: Validate release source
+        id: release
+        env:
+          TOOL: ${{ github.event.client_payload.tool || inputs.tool }}
+          COMPONENT: ${{ github.event.client_payload.component || inputs.component }}
+          TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+          REPO: ${{ github.event.client_payload.repo || inputs.repo }}
+          MAJOR: ${{ github.event_name == 'repository_dispatch' && format('{0}', github.event.client_payload.major) || inputs.major }}
         shell: bash
         run: |
           set -euo pipefail
-
-          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-            tool="${{ github.event.client_payload.tool }}"
-            tag="${{ github.event.client_payload.tag }}"
-            repo="${{ github.event.client_payload.repo }}"
+          [[ "$TOOL" =~ ^[a-z0-9][a-z0-9-]*$ ]]
+          [[ "$TAG" =~ ^v([0-9]+)\.[0-9]+\.[0-9]+$ ]]
+          tag_major="${BASH_REMATCH[1]}"
+          if [[ "$TOOL" == zipover ]]; then
+            test "$MAJOR" = "$tag_major"
+            case "$COMPONENT:$REPO" in
+              cli:harrisonwang/zipover) ;;
+              desktop:harrisonwang/zipover-releases) test "$MAJOR" = 1 ;;
+              *) echo '::error::Unapproved Zipover release source'; exit 1 ;;
+            esac
           else
-            tool="${{ inputs.tool }}"
-            tag="${{ inputs.tag }}"
-            repo="${{ inputs.repo }}"
+            COMPONENT="${COMPONENT:-cli}"
+            test "$COMPONENT" = cli
+            test "$REPO" = "harrisonwang/$TOOL"
           fi
-
-          if [[ ! "$tool" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
-            echo "invalid tool name: $tool" >&2
-            exit 1
+          if [[ "$COMPONENT" == desktop ]]; then
+            output=bucket/zipover-gui.json
+            template=.github/scoop/zipover-gui.json.tmpl
+            curl -fsSL "https://raw.githubusercontent.com/$REPO/main/channels/v1.json" -o channel.json
+            test "$(jq -r .tag channel.json)" = "$TAG" || { echo '::error::Release is no longer the current Desktop channel'; exit 1; }
+          else
+            if [[ "$TOOL" == zipover ]]; then
+              curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" -o latest.json
+              test "$(jq -r .tag_name latest.json)" = "$TAG" || { echo '::error::Release is no longer the latest CLI version'; exit 1; }
+            fi
+            output="bucket/${TOOL}.json"
+            template="src/.github/scoop/${TOOL}.json.tmpl"
           fi
-          if [[ ! "$tag" =~ ^v[0-9] ]]; then
-            echo "invalid tag: $tag" >&2
-            exit 1
-          fi
-          if [[ ! "$repo" =~ ^harrisonwang/[A-Za-z0-9._-]+$ ]]; then
-            echo "repo is not allowed: $repo" >&2
-            exit 1
-          fi
-
-          echo "tool=$tool" >> "$GITHUB_OUTPUT"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
-          echo "repo=$repo" >> "$GITHUB_OUTPUT"
-
-      - name: Checkout bucket
-        uses: actions/checkout@v4
-
-      - name: Test manifest renderer
+          echo "tool=$TOOL" >> "$GITHUB_OUTPUT"
+          echo "component=$COMPONENT" >> "$GITHUB_OUTPUT"
+          echo "repo=$REPO" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "output=$output" >> "$GITHUB_OUTPUT"
+          echo "template=$template" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+      - name: Test package renderer
         run: python3 -m unittest discover -s scripts -p 'test_*.py'
-
-      - name: Checkout tool repo
-        uses: actions/checkout@v4
+      - name: Checkout public CLI source templates
+        if: steps.release.outputs.component == 'cli'
+        uses: actions/checkout@v7
         with:
-          repository: ${{ steps.in.outputs.repo }}
-          ref: ${{ steps.in.outputs.tag }}
+          repository: ${{ steps.release.outputs.repo }}
+          ref: ${{ steps.release.outputs.tag }}
           path: src
-
-      - name: Download checksums
+      - name: Verify downloads and render package
         env:
-          TAG: ${{ steps.in.outputs.tag }}
-          REPO: ${{ steps.in.outputs.repo }}
+          TOOL: ${{ steps.release.outputs.tool }}
+          TAG: ${{ steps.release.outputs.tag }}
+          REPO: ${{ steps.release.outputs.repo }}
+          TEMPLATE: ${{ steps.release.outputs.template }}
+          OUTPUT: ${{ steps.release.outputs.output }}
         shell: bash
         run: |
           set -euo pipefail
-          curl -fsSL "https://github.com/${REPO}/releases/download/${TAG}/SHA256SUMS.txt" -o SHA256SUMS.txt
-
-      - name: Render manifest
+          curl -fsSL "https://github.com/$REPO/releases/download/$TAG/SHA256SUMS.txt" -o "$RUNNER_TEMP/SHA256SUMS.txt"
+          python3 scripts/render_manifest.py --template "$TEMPLATE" --checksums "$RUNNER_TEMP/SHA256SUMS.txt" --output "$OUTPUT" --verify-downloads
+          python3 -m json.tool "$OUTPUT" > /dev/null
+      - name: Commit and push package update
         env:
-          TOOL: ${{ steps.in.outputs.tool }}
-          TAG: ${{ steps.in.outputs.tag }}
-          REPO: ${{ steps.in.outputs.repo }}
-        shell: bash
+          TOOL: ${{ steps.release.outputs.tool }}
+          COMPONENT: ${{ steps.release.outputs.component }}
+          TAG: ${{ steps.release.outputs.tag }}
+          OUTPUT: ${{ steps.release.outputs.output }}
         run: |
-          set -euo pipefail
-          template="src/.github/scoop/${TOOL}.json.tmpl"
-          test -f "$template"
-          python3 scripts/render_manifest.py \
-            --template "$template" \
-            --checksums SHA256SUMS.txt \
-            --output "bucket/${TOOL}.json"
-          python3 -m json.tool "bucket/${TOOL}.json" > /dev/null
-
-      - name: Commit and push
-        env:
-          TOOL: ${{ steps.in.outputs.tool }}
-          TAG: ${{ steps.in.outputs.tag }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "bucket/${TOOL}.json"
-          if git diff --cached --quiet; then
-            echo "No changes"
-          else
-            git commit -m "${TOOL} ${TAG}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$OUTPUT"
+          if ! git diff --cached --quiet; then
+            git commit -m "$TOOL $COMPONENT $TAG"
             git push
           fi

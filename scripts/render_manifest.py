@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
 import os
 import re
 import sys
+import urllib.request
 from pathlib import Path
 
 
@@ -46,11 +48,25 @@ def render_sha_tokens(text: str, checksums: dict[str, str]) -> str:
     return SHA_TOKEN_RE.sub(replace, text)
 
 
+def verify_downloads(text: str, checksums: dict[str, str], base_url: str) -> None:
+    for asset in sorted(set(SHA_TOKEN_RE.findall(text))):
+        sha = checksums.get(asset, "")
+        if not re.fullmatch(r"[A-Za-z0-9._-]+", asset) or not re.fullmatch(r"[a-fA-F0-9]{64}", sha):
+            raise ValueError(f"invalid release checksum: {asset}")
+        digest = hashlib.sha256()
+        with urllib.request.urlopen(f"{base_url}/{asset}", timeout=120) as response:
+            while chunk := response.read(1024 * 1024):
+                digest.update(chunk)
+        if digest.hexdigest() != sha.lower():
+            raise ValueError(f"download checksum mismatch: {asset}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Render a Scoop manifest template.")
     parser.add_argument("--template", required=True, type=Path)
     parser.add_argument("--checksums", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--verify-downloads", action="store_true")
     args = parser.parse_args()
 
     tool = os.environ.get("TOOL", "")
@@ -73,6 +89,8 @@ def main() -> int:
         template = args.template.read_text(encoding="utf-8")
         checksums = load_checksums(args.checksums)
         rendered = render_simple_tokens(template, variables)
+        if args.verify_downloads:
+            verify_downloads(rendered, checksums, variables["BASE_URL"])
         rendered = render_sha_tokens(rendered, checksums)
     except Exception as exc:
         print(f"render_manifest.py: {exc}", file=sys.stderr)
