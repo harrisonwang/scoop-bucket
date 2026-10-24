@@ -1,0 +1,66 @@
+name: validate-desktop-candidate
+
+on:
+  repository_dispatch:
+    types: [desktop-candidate-released]
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        description: Desktop candidate tag (v1.0.0-rc.1)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-candidate-${{ github.event.client_payload.tag || inputs.tag }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  TOOL: zipover
+  REPO: harrisonwang/zipover-releases
+  TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+
+jobs:
+  install-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify candidate and render temporary manifest
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:TAG -notmatch '^v1\.[0-9]+\.[0-9]+-rc\.[1-9][0-9]*$') { throw 'Expected a Desktop RC tag' }
+          $release = gh api "repos/$env:REPO/releases/tags/$env:TAG" | ConvertFrom-Json
+          if ($LASTEXITCODE) { throw 'Reading release metadata failed' }
+          if ($release.tag_name -ne $env:TAG -or !$release.prerelease -or $release.draft) { throw 'Expected a published prerelease' }
+          gh release download $env:TAG --repo $env:REPO --pattern SHA256SUMS.txt --dir $env:RUNNER_TEMP
+          if ($LASTEXITCODE) { throw 'Downloading checksums failed' }
+          python scripts/render_manifest.py --template .github/scoop/zipover-gui.json.tmpl --checksums "$env:RUNNER_TEMP/SHA256SUMS.txt" --output "$env:RUNNER_TEMP/zipover-gui.json" --verify-downloads
+          if ($LASTEXITCODE) { throw 'Rendering candidate manifest failed' }
+      - name: Install Scoop
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://get.scoop.sh -OutFile "$env:RUNNER_TEMP/install-scoop.ps1"
+          & "$env:RUNNER_TEMP/install-scoop.ps1" -RunAsAdmin
+          "$env:USERPROFILE/scoop/shims" >> $env:GITHUB_PATH
+      - name: Install candidate through temporary manifest
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          scoop install "$env:RUNNER_TEMP/zipover-gui.json"
+          if ($LASTEXITCODE) { throw 'Candidate installation failed' }
+          $prefix = (scoop prefix zipover-gui).Trim()
+          if ($LASTEXITCODE) { throw 'Reading installation directory failed' }
+          foreach ($notice in @('LICENSE', 'THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt')) {
+            if (!(Test-Path "$prefix/$notice")) { throw "Missing installed notice: $notice" }
+          }
+          $versionOutput = "$env:RUNNER_TEMP/zipover-version.txt"
+          $process = Start-Process -FilePath "$prefix/zipover-gui.exe" -ArgumentList '--version' -RedirectStandardOutput $versionOutput -Wait -PassThru
+          if ($process.ExitCode) { throw 'Installed candidate smoke check failed' }
+          if ((Get-Content $versionOutput -Raw).Trim() -ne "zipover $($env:TAG.Substring(1))") { throw 'Installed candidate version mismatch' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate-scoop-manifest
+          path: ${{ runner.temp }}/zipover-gui.json
