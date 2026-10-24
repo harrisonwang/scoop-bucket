@@ -31,6 +31,9 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
+    outputs:
+      tool: ${{ steps.release.outputs.tool }}
+      component: ${{ steps.release.outputs.component }}
     steps:
       - name: Validate release source
         id: release
@@ -114,3 +117,31 @@ jobs:
             git commit -m "$TOOL $COMPONENT $TAG"
             git push
           fi
+
+  install-windows:
+    if: needs.update.outputs.tool == 'zipover'
+    needs: update
+    runs-on: windows-latest
+    steps:
+      - name: Install Scoop
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://get.scoop.sh -OutFile "$env:RUNNER_TEMP/install-scoop.ps1"
+          & "$env:RUNNER_TEMP/install-scoop.ps1" -RunAsAdmin
+          "$env:USERPROFILE/scoop/shims" >> $env:GITHUB_PATH
+      - name: Install and check package
+        shell: pwsh
+        env:
+          COMPONENT: ${{ needs.update.outputs.component }}
+        run: |
+          $package = if ($env:COMPONENT -eq 'desktop') { 'zipover-gui' } else { 'zipover' }
+          scoop bucket add harrisonwang https://github.com/harrisonwang/scoop-bucket
+          if ($LASTEXITCODE) { throw 'Adding the Scoop bucket failed' }
+          scoop install "harrisonwang/$package"
+          if ($LASTEXITCODE) { throw 'Package installation failed' }
+          $prefix = (scoop prefix $package).Trim()
+          foreach ($notice in @('LICENSE', 'THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt')) {
+            if (!(Test-Path "$prefix/$notice")) { throw "Missing installed notice: $notice" }
+          }
+          $process = Start-Process -FilePath "$prefix/$package.exe" -ArgumentList '--version' -Wait -PassThru
+          if ($process.ExitCode) { throw 'Installed executable smoke check failed' }
