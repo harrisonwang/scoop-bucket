@@ -1,0 +1,38 @@
+{
+  "version": "0.9.1",
+  "description": "Sync clipboard and files across devices on a LAN",
+  "homepage": "https://github.com/harrisonwang/zipover",
+  "license": "MIT",
+  "architecture": {
+    "64bit": {
+      "url": [
+        "https://github.com/harrisonwang/zipover/releases/download/v0.9.1/zipover_v0.9.1_x86_64-pc-windows-msvc.exe#/zipover.exe",
+        "https://github.com/harrisonwang/zipover/releases/download/v0.9.1/LICENSE",
+        "https://github.com/harrisonwang/zipover/releases/download/v0.9.1/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+      ],
+      "hash": [
+        "d03569983e6f6aa74794bea21177b3df03ad04994e0ed0a604a6179b0fe952b2",
+        "b6b22894d1d1fd2079790af964c7e8bb8170f87d7d94cc8a3e80fd0a865032eb",
+        "1b6aa45d13c922f3909bffbcb9531deaf64c18b66087ef58fdc96214bc627242"
+      ]
+    }
+  },
+  "bin": "zipover.exe",
+  "checkver": {
+    "github": "https://github.com/harrisonwang/zipover"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": [
+          "https://github.com/harrisonwang/zipover/releases/download/v$version/zipover_v$version_x86_64-pc-windows-msvc.exe#/zipover.exe",
+          "https://github.com/harrisonwang/zipover/releases/download/v$version/LICENSE",
+          "https://github.com/harrisonwang/zipover/releases/download/v$version/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+        ]
+      }
+    },
+    "hash": {
+      "url": "https://github.com/harrisonwang/zipover/releases/download/v$version/SHA256SUMS.txt"
+    }
+  }
+}
