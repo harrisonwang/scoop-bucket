@@ -1,19 +1,19 @@
 {
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Sync clipboard and files across devices on a LAN",
   "homepage": "https://github.com/harrisonwang/zipover",
   "license": "MIT",
   "architecture": {
     "64bit": {
       "url": [
-        "https://github.com/harrisonwang/zipover/releases/download/v1.3.2/zipover_v1.3.2_x86_64-pc-windows-msvc.exe#/zipover.exe",
-        "https://github.com/harrisonwang/zipover/releases/download/v1.3.2/LICENSE",
-        "https://github.com/harrisonwang/zipover/releases/download/v1.3.2/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+        "https://github.com/harrisonwang/zipover/releases/download/v1.3.3/zipover_v1.3.3_x86_64-pc-windows-msvc.exe#/zipover.exe",
+        "https://github.com/harrisonwang/zipover/releases/download/v1.3.3/LICENSE",
+        "https://github.com/harrisonwang/zipover/releases/download/v1.3.3/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
       ],
       "hash": [
-        "9c9965512045d2eeb07915560f19d25b9c8c844c5473e5d079bf0cbb1552ca7c",
+        "94b105afc1916216a7b965e16a078b73af15e5285287ecbb0b888ca37487eb1c",
         "b6b22894d1d1fd2079790af964c7e8bb8170f87d7d94cc8a3e80fd0a865032eb",
-        "0a8941a0db5157a5a9677a8530936dbcd4973edacc47d2f6c40a96cccf9c2e68"
+        "d30d5f0777d9e2d07b235e89381e6af213a4284886a98a0a65ca0f4e420616ff"
       ]
     }
   },
