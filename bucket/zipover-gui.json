@@ -1,22 +1,22 @@
 {
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "Zipover Desktop: clipboard and file synchronization over LAN",
   "homepage": "https://github.com/harrisonwang/zipover-releases",
   "license": {
     "identifier": "Proprietary",
-    "url": "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.5/LICENSE"
+    "url": "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.6/LICENSE"
   },
   "architecture": {
     "64bit": {
       "url": [
-        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.5/zipover-gui_v1.3.5_x86_64-pc-windows-msvc.exe#/zipover-gui.exe",
-        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.5/LICENSE",
-        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.5/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
+        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.6/zipover-gui_v1.3.6_x86_64-pc-windows-msvc.exe#/zipover-gui.exe",
+        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.6/LICENSE",
+        "https://github.com/harrisonwang/zipover-releases/releases/download/v1.3.6/THIRD-PARTY-NOTICES_x86_64-pc-windows-msvc.txt"
       ],
       "hash": [
-        "6263c376220990454c98669be0ce9b708858c40aa7b94af1579a34db0615a5ac",
+        "00e0587738b1c9cac655fc26b0fc5a9313fd3588fba9c4e960cce0d8dc1d759f",
         "1b0f3e83f24f9117fa710c00477992e8e9d7beff86904dc0ff1f8d617d5c38dc",
-        "b3849e16ee9c115ae82df3d1c2dd9dc76892ddf26bc3b6bf85d6ade64b5128b2"
+        "fef83d165cb6683a07146a43e48e9fdbbd5ecd3ae70970f7e814e4e4c5b6bc65"
       ]
     }
   },
